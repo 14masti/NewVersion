@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Ticket Booking</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Train Ticket Booking</h1>
+    <form method="POST" action="http://localhost:8081/Train_Ticket_Booking/BookingServlet">
+        <label for="from">From:</label>
+        <select id="from" name="from" ></select>
+        
+        <label for="to">To:</label>
+       <select id="to" name="to" required ></select>
+
+        <label for="trains">Train</label>
+       <select id="train" name="train" required></select>
+        
+        <label for="trainClasses">Class:</label>
+        <select id="trainClass" name="trainClass">
+            <option value="sleeper">sleeper</option>
+            <option value="AC">AC</option>
+            <option value="NON-AC">NON-AC</option>
+            <option value="firstClass">First Class</option>
+        </select>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required>
+
+        <h2>Passenger Details</h2>
+        <table>
+            <thead>
+                <tr>
+					<th>S.No</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Berth</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody id="passengersTableBody">
+                <tr>
+                    <td>1</td>
+                    <td><input type="text" name="passengername"></td>
+                    <td><input type="number" name="passengerage"></td>
+                    <td>
+                        <select name="passengergender">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select name="passengerberth">
+                            <option value="lower">lower</option>
+                            <option value="upper">upper</option>
+                            <option value="middle">middle</option>
+                        </select>
+                    </td>
+                    <!--td><input type="text" name="berth1"></td-->
+                    <td><button type="button" onclick="deleteRow(this)">Delete</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" id="addPassengerButton" onclick="addPassenger()">Add Passenger</button>
+        <button type="submit" onclick="BookTicket()">Book</button>
+        <button type="button" onclick="clearForm()">Clear</button>
+    </form>
+
+    <script>
+		
+		function fetchStations() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8081/Train_Ticket_Booking/StationServlet", true); // Replace "contextPath" with your actual context path
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var fromInput = document.getElementById("from");
+                        var toInput = document.getElementById("to");
+                        
+                        data.forEach(function(station) {
+                            var option = document.createElement("option");
+                            option.value = station;
+                            option.textContent = station;
+                            fromInput.appendChild(option);
+                            toInput.appendChild(option.cloneNode(true));
+                        });
+                    } else {
+                        console.error("Error fetching stations:", xhr.status, xhr.statusText);
+                    }
+                }
+            };
+            
+            xhr.send();
+        }
+
+        // Call fetchStations() when the page loads
+        fetchStations();
+        
+        
+        function fetchTrains() {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "http://localhost:8081/Train_Ticket_Booking/TrainServlet", true); // Replace "contextPath" with your actual context path
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var data = JSON.parse(xhr.responseText);
+                        var trainInput = document.getElementById("train");
+                        
+                        data.forEach(function(train) {
+                            var option = document.createElement("option");
+                            option.value = train;
+                            option.textContent = train;
+                            trainInput.appendChild(option);
+                        });
+                    } else {
+                        console.error("Error fetching trains:", xhr.status, xhr.statusText);
+                    }
+                }
+            };
+            
+            xhr.send();
+        }
+
+        // Call fetchTrains() when the page loads
+        fetchTrains();
+        
+        //addpassenger method
+        function addPassenger() {
+            var tableBody = document.getElementById("passengersTableBody");
+            var rowCount = tableBody.rows.length;
+
+            var newRow = tableBody.insertRow(rowCount);
+
+            var cell0 = newRow.insertCell(0);
+            cell0.innerHTML = rowCount + 1;
+
+            var cell1 = newRow.insertCell(1);
+            cell1.innerHTML = '<input type="text" name="passengername">';
+
+            var cell2 = newRow.insertCell(2);
+            cell2.innerHTML = '<input type="number" name="passengerage">';
+
+            var cell3 = newRow.insertCell(3);
+            cell3.innerHTML = `
+                <select name="passengergender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                </select>
+            `;
+
+            var cell4 = newRow.insertCell(4);
+            cell4.innerHTML = `
+                <select name="passengerberth">
+                    <option value="lower">lower</option>
+                    <option value="upper">upper</option>
+                    <option value="middle">middle</option>
+                </select>
+            `;
+
+            var cell5 = newRow.insertCell(5);
+            cell5.innerHTML = '<button type="button" onclick="deleteRow(this)">Delete</button>';
+        }
+        
+        function deleteRow(button) {
+            var row = button.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+        
+        
+        function BookTicket() {
+    // Collect passenger details
+    var passengerDetails = [];
+    var table = document.getElementById("passengersTableBody");
+    for (var i = 0; i < table.rows.length; i++) {
+        var passenger = {
+            name: table.rows[i].querySelector("input[name^='passengername']").value,
+            age: table.rows[i].querySelector("input[name^='passengerage']").value,
+            gender: table.rows[i].querySelector("select[name^='passengergender']").value,
+            berth: table.rows[i].querySelector("select[name^='passengerberth']").value
+        };
+        passengerDetails.push(passenger);
+    }
+
+    // Prepare data to send to the servlet
+    var formData = new FormData();
+    formData.append("from", document.getElementById("from").value);
+    formData.append("to", document.getElementById("to").value);
+    formData.append("train", document.getElementById("train").value);
+    formData.append("class", document.getElementById("trainClass").value);
+    formData.append("date", document.getElementById("date").value);
+    
+    // Append passenger details to formData
+    for (var i = 0; i < passengerDetails.length; i++) {
+        formData.append("passengerName" + (i + 1), passengerDetails[i].name);
+        formData.append("passengerAge" + (i + 1), passengerDetails[i].age);
+        formData.append("passengerGender" + (i + 1), passengerDetails[i].gender);
+        formData.append("passengerBerth" + (i + 1), passengerDetails[i].berth);
+    }
+
+}
+      
+        function clearForm() {
+            var table = document.querySelector("table tbody");
+            while (table.firstChild) {
+                table.removeChild(table.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>
