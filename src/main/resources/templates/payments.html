@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payments</title>
+    <style>
+        /* Global Styles */
+        body {
+			
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+			text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 100px;
+         
+        
+            border-radius: 5px;
+        }
+
+        h1 {
+         
+            text-align: center;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        /* Form Styles */
+        .filter {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        select, input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button[type="submit"], .back-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .back-button {
+            background-color: #333;
+            margin-left: 10px;
+        }
+
+        .back-button:hover {
+            background-color: #555;
+        }
+
+        /* Link Styles */
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+     
+
+
+  </style>
+  
+<link rel="stylesheet" type="text/css" href="header.css">
+<link rel="stylesheet" type="text/css" href="footer.css">
+<link rel="stylesheet" type="text/css" href="side.css">
+  </head>
+  <body>
+
+       <div th:replace="header :: body"></div><br><br><br><br>
+
+    <div th:replace="side :: body"></div> <br><br>
+   <div class="container">
+        <h1>Payments</h1>
+        
+        <div class="filter">
+            <form th:action="@{/search}" method="get">
+                <label for="filterBy">Filter By:</label>
+                <select id="filterBy" name="filterBy">
+                    <option value="all">All</option>
+                    <option value="tran_id ">Transaction ID</option>
+                    <option value="claim_id ">Claim ID</option>
+                    <option value="payment_Processed_date ">Payment Date</option>
+                </select>
+                
+                <input type="text" id="typeSearch" name="value">
+                <button type="submit">Search</button>
+                <a th:href="@{/payments}" class="back-button">Back to all Payments</a>
+            </form>
+        </div>
+
+        <table>
+            <tr>
+                <th>Settlement Id</th>
+                <th>Transaction ID</th>
+                <th>Payment Date</th>
+                <th>Claim ID</th>
+                <th>Payment Amount</th>
+                <th></th>
+            </tr>
+            <tr th:each="payment : ${payments}">
+                <td th:text="${payment.stmt_id}"></td>
+                <td th:text="${payment.tran_id}"></td>
+                <td th:text="${#dates.format(payment.payment_Processed_date , 'yyyy-MM-dd')}"></td>
+                <td th:text="${payment.claim_id}"></td>
+                <td th:text="${payment.tran_amnt}"></td>
+                
+                
+                <td><form action="view"><input type="hidden" th:name="id" th:value="${payment.stmt_id}">
+                <input type="submit" value="view">
+                </form></td>
+            </tr>
+        </table>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ 	    <div th:replace="footer :: body"></div> <br><br>
+
+</body>
+</html>
